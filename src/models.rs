@@ -1,4 +1,4 @@
-use crate::filters::ExtendedKalmanFilterModel;
+use crate::filters::KalmanFilterModel;
 use crate::types::{ArrayMatrix, ArrayVector};
 use nalgebra::{dmatrix, DMatrix};
 
@@ -19,11 +19,7 @@ impl ConstantOrbitModel {
     }
 }
 
-impl ExtendedKalmanFilterModel for ConstantOrbitModel {
-    fn predict_apply(&self, x: &ArrayVector) -> ArrayVector {
-        x.clone()
-    }
-
+impl KalmanFilterModel for ConstantOrbitModel {
     fn predict_mat(&self, _x: &ArrayVector) -> ArrayMatrix {
         DMatrix::identity(2, 2)
     }
@@ -33,10 +29,6 @@ impl ExtendedKalmanFilterModel for ConstantOrbitModel {
             self.position_noise, 0.0;
             0.0, self.position_noise;
         ]
-    }
-
-    fn observe_apply(&self, x: &ArrayVector) -> ArrayVector {
-        x.clone()
     }
 
     fn observe_mat(&self, _x: &ArrayVector) -> ArrayMatrix {

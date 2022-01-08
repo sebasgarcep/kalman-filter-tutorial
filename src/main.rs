@@ -4,7 +4,7 @@ mod models;
 mod simulations;
 mod types;
 
-use crate::filters::ExtendedKalmanFilterModel;
+use crate::filters::KalmanFilterModel;
 use crate::metrics::{Metrics, MetricType};
 use crate::models::ConstantOrbitModel;
 use crate::simulations::OrbitSimulation;
@@ -46,7 +46,6 @@ fn main() {
         let x_real = simulation.calculate_orbit(t);
         metrics.update_orbit(MetricType::Real, &x_real);
 
-        // Measurement
         let x_meas = simulation.measure_state(&x_real, &model.e_meas, &mut rng);
         metrics.update_orbit(MetricType::Measurement, &x_meas);
         metrics.update_error(MetricType::Measurement, step, &x_real, &x_meas);
