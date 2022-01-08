@@ -1,5 +1,6 @@
 use crate::types::ArrayVector;
 use poloto::{Plotter, PlotNum};
+use std::f64::consts::PI;
 use std::fmt::Display;
 use std::io::Write;
 
@@ -8,6 +9,7 @@ pub struct Metrics {
     orbit_meas: Vec<[f64; 2]>,
     orbit_pred: Vec<[f64; 2]>,
     orbit_corr: Vec<[f64; 2]>,
+    circle_foci: Vec<[f64; 2]>,
     error_meas: Vec<[f64; 2]>,
     error_corr: Vec<[f64; 2]>,
 }
@@ -26,6 +28,7 @@ impl Metrics {
         let orbit_meas = vec![];
         let orbit_pred = vec![];
         let orbit_corr = vec![];
+        let circle_foci = vec![];
         let error_meas = vec![];
         let error_corr = vec![];
 
@@ -34,6 +37,7 @@ impl Metrics {
             orbit_meas,
             orbit_pred,
             orbit_corr,
+            circle_foci,
             error_meas,
             error_corr,
         }
@@ -68,6 +72,19 @@ impl Metrics {
         error.push([step as f64, (real - comp).norm() / real.norm()]);
     }
 
+    pub fn update_foci(
+        &mut self,
+        x: f64,
+        y: f64
+    ) {
+        let num_steps = 1000;
+        let radius = 0.05;
+        for step in 0..=num_steps {
+            let angle = 2.0 * PI * (step as f64) / (num_steps as f64);
+            self.circle_foci.push([x + radius * angle.cos(), y + radius * angle.sin()]);
+        }
+    }
+
     pub fn plot_to_svg<S: Display, X: PlotNum, Y: PlotNum>(name: S, plotter: Plotter<X, Y>) {
         let img = poloto::disp(|a| poloto::simple_theme_dark(a, plotter));
         let mut file = std::fs::File::create(format!("./output/{}.svg", &name)).unwrap();
@@ -77,8 +94,9 @@ impl Metrics {
     pub fn save_as_svg(&self) {
         let plotter_orbit = poloto::plot("Orbit", "x", "y")
             .line("Real", &self.orbit_real)
+            .line_fill("Earth", &self.circle_foci)
             .line("Measurement", &self.orbit_meas)
-            .line("Prediction", &self.orbit_pred)
+            // .line("Prediction", &self.orbit_pred)
             .line("Kalman Filter", &self.orbit_corr)
             .xmarker(0.0)
             .ymarker(0.0)

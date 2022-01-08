@@ -39,6 +39,7 @@ fn main() {
     ];
 
     let mut metrics = Metrics::new();
+    metrics.update_foci(simulation.c, 0.0);
 
     for step in 0..NUM_STEPS {
         let t = (step as f64) / (NUM_STEPS as f64);
